@@ -1,4 +1,4 @@
-using Tokenize.Tokens: GREATER, LESS, GREATER_EQ, GREATER_THAN_OR_EQUAL_TO, LESS_EQ, LESS_THAN_OR_EQUAL_TO
+using Tokenize.Tokens: STRING, GREATER, LESS, GREATER_EQ, GREATER_THAN_OR_EQUAL_TO, LESS_EQ, LESS_THAN_OR_EQUAL_TO
 using CSTParser: MacroName
 begin
     struct ObsoleteVersionCheck; vers; end
@@ -27,11 +27,11 @@ begin
 
 
     function detect_ver_arguments(VERSION_arg, v_arg)
-        isa(VERSION_arg, EXPR{CSTParser.IDENTIFIER}) || return nothing
+        isa(VERSION_arg, CSTParser.IDENTIFIER) || return nothing
         VERSION_arg.val == "VERSION" || return nothing
         isa(v_arg, EXPR{CSTParser.x_Str}) || return nothing
-        isa(v_arg.args[1], EXPR{CSTParser.IDENTIFIER}) || return nothing
-        isa(v_arg.args[2], EXPR{CSTParser.LITERAL{Tokens.STRING}}) || return nothing
+        isa(v_arg.args[1], CSTParser.IDENTIFIER) || return nothing
+        (isa(v_arg.args[2], CSTParser.LITERAL) && v_arg.args[1].kind == STRING) || return nothing
         v_arg.args[1].val == "v" || return nothing
         VersionNumber(v_arg.args[2].val)
     end
@@ -40,27 +40,25 @@ begin
         ObsoleteVersionCheck(vers["julia"])
     end
 
-    function is_identifier(x::EXPR, id)
-        isa(x, EXPR{IDENTIFIER}) || return false
-        x.val == id
-    end
+    is_identifier(x) = false
+    is_identifier(x::CSTParser.IDENTIFIER, id) = x.val == id
     is_identifier(x::OverlayNode, id) = is_identifier(x.expr, id)
+
     function is_macroname(x::OverlayNode{MacroCall}, name)
         c = children(x)[1]
         isexpr(c, MacroName) || return false
         return is_identifier(children(c)[2], name)
     end
 
-    opcode(x::EXPR{CSTParser.OPERATOR{6,op,false}}) where {op} = op
-
     match(ObsoleteVersionCheck, CSTParser.If) do x
         dep, expr, resolutions, context = x
         replace_expr = expr
         comparison = children(expr)[2]
         isexpr(comparison, CSTParser.BinaryOpCall) || return
-        isexpr(children(comparison)[2], CSTParser.OPERATOR{6,op,false} where op) || return
+        # TODO:
+        #isexpr(children(comparison)[2], CSTParser.OPERATOR{6,op,false} where op) || return
         comparison = comparison.expr
-        opc = opcode(comparison.args[2])
+        opc = comparison.args[2].kind
         haskey(comparisons, opc) || return
         # Also applies in @static context, but not necessarily in other macro contexts
         if context.in_macrocall

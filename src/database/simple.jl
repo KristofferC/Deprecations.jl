@@ -1,4 +1,4 @@
-begin
+ begin
     struct OldStructSyntax; end
     register(OldStructSyntax, Deprecation(
         "The type-definition keywords (type, immutable, abstract) where changed in Julia 0.6",
@@ -143,7 +143,6 @@ begin
         "String",
     )
 end
-
 begin
     struct ConditionalWhitespace; end
     register(ConditionalWhitespace, Deprecation(
@@ -181,6 +180,7 @@ begin
     end
 end
 
+
 begin
     struct GeneratorWhitespace; end
     register(GeneratorWhitespace, Deprecation(
@@ -189,11 +189,12 @@ begin
         v"0.4.0", v"0.7.0-DEV.797", typemax(VersionNumber)
     ))
 
-    match(GeneratorWhitespace, CSTParser.Generator) do x
+function h(x)
         dep, expr, resolutions, context = x
         ret = ChildReplacementNode(nothing, collect(children(expr)), expr)
         body, fornode, iterand = children(expr)
         allws = string(trailing_ws(body), leading_ws(fornode))
+        global I = I + 1
         if isempty(allws) || !isspace(allws[end])
             children(ret)[2] = TriviaReplacementNode(ret, fornode, string(leading_ws(fornode), " "), trailing_ws(fornode))
             buf = IOBuffer()
@@ -201,5 +202,16 @@ begin
             repl = String(take!(buf))
             push!(resolutions, TextReplacement(expr.span, repl))
         end
-    end
+
+        if !isempty(resolutions)
+            global _EXPR = expr
+            error()
+        end
+end
+
+    match(h, GeneratorWhitespace, CSTParser.Generator)
+
+    global _EXPR = 0
+global I = 0
+
 end

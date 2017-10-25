@@ -1,9 +1,11 @@
-struct ReplacementNode{T}
+using Tokenize
+
+struct ReplacementNode
     text::String
     leading_trivia::String
     trailing_trivia::String
 end
-ReplacementNode(text::String, orig::OverlayNode{T}) where {T} = ReplacementNode{T}(text, leading_ws(orig), trailing_ws(orig))
+ReplacementNode(text::String, orig::OverlayNode) = ReplacementNode(text, leading_ws(orig), trailing_ws(orig))
 fullspan_text(r::ReplacementNode) = string(r.leading_trivia, r.text, r.trailing_trivia)
 
 struct ChildReplacementNode
@@ -182,8 +184,9 @@ function format_setindent_body(expr::TriviaReplacementNode, nindent, parent = no
     TriviaReplacementNode(parent, nexpr, leading_ws(expr), setindent_ws(trailing_ws(expr), nindent))
 end
 
-
+isexpr(x, S, kind::Tokenize.Tokens.Kind) = (x isa S && x.kind == kind)
 isexpr(x::EXPR{T}, S) where {T} = T <: S
+isexpr(x, S) = typeof(x) == S
 isexpr(x::OverlayNode{T}, S) where {T} = T <: S
 isexpr(x::ChildReplacementNode, S) = isexpr(x.onode, S)
 isexpr(x::TriviaReplacementNode, S) = isexpr(x.onode, S)
