@@ -2,6 +2,8 @@ using Deprecations
 using Deprecations: overlay_parse, apply_formatter, changed_text
 using Base.Test
 
+include("unittests.jl")
+
 @test edit_text("""
 function foobar{T}(x, y::T)
     println(x, y)
