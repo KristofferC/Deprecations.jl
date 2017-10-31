@@ -14,23 +14,51 @@ function is_template_expr(expr)
 end
 
 function matches_template(x, y)
-    typeof(x) == typeof(y) || return false
+    if typeof(x) != typeof(y)
+     #  println("Returning false because $(typeof(x)) != $(typeof(y))")
+        return false
+    end
     if typeof(x) == CSTParser.IDENTIFIER
         return strip(x.val) == strip(y.val)
     end
-    if typeof(x) == CSTParser.KEYWORD
+    if typeof(x) in (CSTParser.KEYWORD, CSTParser.PUNCTUATION, CSTParser.OPERATOR)
+        if x.kind != y.kind
+          # println("Returning false because $(x) != $(y)")
+        end
         return x.kind == y.kind
     end
+    #println("MAAATCHED")
+    #println(x)
+    #println(y)
     true
 end
 
 matches_template(x::OverlayNode, y::OverlayNode) = matches_template(x.expr, y.expr)
 
+function matches_template2(x, y)
+    if typeof(x) != typeof(y)
+        return false
+    end
+    if typeof(x) in (CSTParser.KEYWORD, CSTParser.PUNCTUATION, CSTParser.OPERATOR)
+        if x.kind != y.kind
+            return false
+        end
+    end
+    true
+end
+matches_template2(x::OverlayNode, y::OverlayNode) = matches_template(x.expr, y.expr)
+
 struct EmptyMatch
     parent
 end
 
+
+global A, B
 function match_parameters(template, match, result)
+   @show typeof(template), typeof(match)
+    if typeof(template.expr) == CSTParser.PUNCTUATION
+  #      @show template.expr.kind, match.expr.kind
+    end
     (typeof(template) != typeof(match)) && error("Shouldn't have gotten here")
     j = 1
     for (i,x) in enumerate(children(template))
@@ -43,7 +71,12 @@ function match_parameters(template, match, result)
         end
         y = children(match)[j]
         ret, sym, slurp = is_template_expr(x)
-        if !ret && matches_template(x, y)
+        #if typeof(x.expr) == CSTParser.PUNCTUATION
+        #    @show x.expr.kind, y.expr.kind, j
+        #else
+        #    @show typeof(x.expr), typeof(y.expr), j
+        #end
+         if !ret && matches_template(x, y)
             ok = match_parameters(x, y, result)
             ok || return ok
             j += 1
@@ -61,10 +94,12 @@ function match_parameters(template, match, result)
                     else
                         nextx = children(template)[i + 1]
                         startj = j
-                        while j <= length(children(match)) && typeof(nextx) != typeof(children(match)[j])
+                        while j <= length(children(match)) && !matches_template2(nextx, children(match)[j])
                             push!(matched_exprs, children(match)[j])
                             j += 1
                         end
+                        global A= nextx
+                        global B = children(match)[j]
                         result[sym] = (without_trailing_ws, isempty(matched_exprs) ? (EmptyMatch(children(match)[j]),) : matched_exprs)
                     end
                 end
@@ -76,8 +111,10 @@ function match_parameters(template, match, result)
     if j < length(children(match))
         return false
     end
-    return true
+    # Compare to other version
     
+    #@show template, match
+    return true
 end
 
 function leaf_is_template_expr(x)
