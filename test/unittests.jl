@@ -58,7 +58,7 @@ end
 # OLDCOMPAT
 let
     x = CSTParser.parse("f(x::T) where{T}")
-    @test Deprecations.is_where(x)
+    @test Deprecations.is_where_expr(x)
 end
 
 # let detect_ver_arguments(

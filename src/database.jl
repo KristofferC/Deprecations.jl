@@ -1,6 +1,9 @@
 using Compat
 using CSTParser: FunctionDef, OPERATOR, PUNCTUATION, Curly, BinaryOpCall, BinarySyntaxOpCall, ComparisonOp, DeclarationOp
 
+is_where_expr(::CSTParser.WhereOpCall) = true
+is_where_expr(::Any) = false
+
 # Rewrites related to the new parametric type syntax on 0.6, including
 # rewriting inner constructors
 include("database/parametric.jl")

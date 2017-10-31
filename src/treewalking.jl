@@ -21,18 +21,25 @@ OverlayNode(expr, buffer) = OverlayNode(nothing, buffer, expr, 0:(expr.fullspan-
 AbstractTrees.printnode(io::IO, o::OverlayNode{T}) where {T} = print(io, sprint(AbstractTrees.printnode, o.expr), " -- ", o.fullspan, " (", o.span, ")")
 Base.show(io::IO, o::OverlayNode) = AbstractTrees.print_tree(io, o)
 
-Base.length(o::OverlayNode) = length(o.expr.args)
-Base.endof(o::OverlayNode)  = endof(o.expr.args)
+Base.length(o::OverlayNode) = length(children(o.expr))
+Base.endof(o::OverlayNode)  = endof(children(o.expr))
+
+Base.length(::CSTParser.LITERAL) = 0
+Base.length(::CSTParser.OPERATOR) = 0
+Base.length(::CSTParser.KEYWORD) = 0
+Base.length(::CSTParser.PUNCTUATION) = 0
+Base.length(::CSTParser.IDENTIFIER) = 0
 
 children(node::OverlayNode) = node
 
 
 function Base.getindex(node::OverlayNode, idx::Integer)
     offset = first(node.fullspan)
+    c = children(node.expr)
     for i = 1:idx-1
-        offset += node.expr.args[i].fullspan
+        offset += c[i].fullspan
     end
-    expr = node.expr.args[idx]
+    expr = children(node.expr)[idx]
     OverlayNode(node, node.buffer, expr, offset:(offset+expr.fullspan-1), offset - 1 + expr.span)
 end
 function Base.getindex(node::OverlayNode, range::Range)

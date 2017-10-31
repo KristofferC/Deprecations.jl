@@ -71,11 +71,6 @@ begin
     ))
     applies_in_macrocall(dep::OldParametricSyntax, context) = true
 
-    function is_where_expr(expr)
-        isexpr(expr, BinarySyntaxOpCall) || return false
-        isexpr(children(expr)[2], OPERATOR, Tokens.WHERE) || return false
-        return true
-    end
 
     function get_struct_parent(expr)
         expr.parent == nothing && return nothing
@@ -159,15 +154,18 @@ begin
             tparams = tparams[2:2]
         end
         new_tree = ChildReplacementNode(nothing, children(expr)[(isexpr(expr, FunctionDef) ? 3 : 2):end], expr)
+        # For making an empyu BinarySyntaxOpCall
+        replace_op = CSTParser.OPERATOR(0, 0:1, Tokens.ERROR, false)
+        replace_lit = CSTParser.LITERAL(0, 0:1, "", Tokens.ERROR)
         new_where = TriviaReplacementNode(new_tree, ChildReplacementNode(new_tree,
-            [ReplacementNode("where"," "," "), tparams...], EXPR{CSTParser.BinarySyntaxOpCall}(EXPR[],"")),
+            [ReplacementNode("where"," "," "), tparams...], CSTParser.BinarySyntaxOpCall(replace_lit, replace_op, replace_lit)),
             "", trailing_ws(call))
         unshift!(children(new_tree), new_where)
         isexpr(expr, FunctionDef) && unshift!(children(new_tree), children(expr)[1])
         new_call = TriviaReplacementNode(new_where, ChildReplacementNode(new_where, children(call)[2:end], call), "", "")
         unshift!(children(new_where), new_call)
         if needs_new_curly
-            new_curly = TriviaReplacementNode(new_call, ChildReplacementNode(new_call, [fname, new_curlies...], had_curly ? Curly : EXPR{Curly}(Expr[], "")),"","")
+            new_curly = TriviaReplacementNode(new_call, ChildReplacementNode(new_call, [fname, new_curlies...], had_curly ? Curly : EXPR{Curly}(Expr[], 0, 0:1)),"","")
             unshift!(children(new_call), new_curly)
         else
             unshift!(children(new_call), fname)

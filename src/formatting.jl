@@ -183,16 +183,28 @@ function format_setindent_body(expr::TriviaReplacementNode, nindent, parent = no
 end
 
 
-isexpr(x::EXPR{T}, S) where {T} = T <: S || T == S
-isexpr(x::EXPR{CSTParser.OPERATOR{prec, OP, dot}}, o::Type{CSTParser.OPERATOR}, op) where {prec, OP, dot} = OP == op && dot == false
-isexpr(x::EXPR{CSTParser.KEYWORD{KW}}, k::Type{CSTParser.KEYWORD}, kw) where {KW} = KW == kw
-isexpr(x::EXPR{CSTParser.LITERAL{LIT}}, k::Type{CSTParser.LITERAL}, lit) where {LIT} = lit == lit
-isexpr(x::EXPR, o, op) = false
+isexpr(x::EXPR{T}, ::Type{S}) where {T, S} = T == S
 
-isexpr(x::OverlayNode, o, op) = isexpr(x.expr, o, op)
-isexpr(x::OverlayNode, S) = isexpr(x.expr, S)
-isexpr(x::ChildReplacementNode, S) = isexpr(x.onode, S)
-isexpr(x::TriviaReplacementNode, S) = isexpr(x.onode, S)
+isexpr(x::T, ::Type{T}) where {T} = true
+isexpr(x::T1, ::Type{T2}) where {T1, T2} = false
+# Operator
+isexpr(x::CSTParser.OPERATOR, o::Type{CSTParser.OPERATOR}, op::Tokens.Kind) = x.kind == op && x.dot == false
+isexpr(x, o::Type{CSTParser.OPERATOR}, op::Tokens.Kind) = false
+# Keyword
+isexpr(x::CSTParser.KEYWORD, k::Type{CSTParser.KEYWORD}, kw::Tokens.Kind) = x.kind == kw
+isexpr(x, k::Type{CSTParser.KEYWORD}, kw::Tokens.Kind) = false
+# Literal
+isexpr(x::CSTParser.LITERAL, k::Type{CSTParser.LITERAL}, lit::Tokens.Kind) = x.kind == lit
+isexpr(x, k::Type{CSTParser.LITERAL}, lit::Tokens.Kind) = false
+
+isexpr(x::OverlayNode, ::Type{S}, kind::Tokens.Kind) where {S} = isexpr(x.expr, S, kind)
+isexpr(x::OverlayNode, ::Type{CSTParser.OPERATOR}, kind::Tokens.Kind)  = isexpr(x.expr, CSTParser.OPERATOR, kind)
+isexpr(x::OverlayNode, ::Type{CSTParser.KEYWORD}, kind::Tokens.Kind)  = isexpr(x.expr, CSTParser.KEYWORD, kind)
+isexpr(x::OverlayNode, ::Type{CSTParser.LITERAL}, kind::Tokens.Kind) = isexpr(x.expr, CSTParser.LITERAL, kind)
+isexpr(x::OverlayNode, ::Type{S}) where {S} = isexpr(x.expr, S)
+
+isexpr(x::ChildReplacementNode, ::Type{S}) where {S} = isexpr(x.onode, S)
+isexpr(x::TriviaReplacementNode, ::Type{S}) where {S} = isexpr(x.onode, S)
 
 children(x::ChildReplacementNode) = x.children
 children(x::TriviaReplacementNode) = children(x.onode)
