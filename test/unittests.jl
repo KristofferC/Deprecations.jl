@@ -6,7 +6,6 @@ import CSTParser: KEYWORD
 # isexpr #
 ##########
 
-
 expr = CSTParser.parse("if true elseif false end")
 elseif_arg = expr.args[4]
 
@@ -38,6 +37,15 @@ let
     @test Deprecations.is_template_expr(x) == (false, nothing, false)
 end
 
+
+# What needs to be changed
+
+# KEYWORDs are no longer parameterized
+# isexpr(exp, KEYWORD{Tokens.ELSEIF}) --> isexpr(exp, KEYWORD, ELSEIF)
+
+# What is the number below? (dotted and what more?)
+# OPERATORS(exp, OPERATOR{9, Tokens.EX_OR, false}) --> isexpr(exp, OPERATOR, EX_OR)
+# isexpr(
 
 # What does is_template_expr do?
 # Returns, ret_slo

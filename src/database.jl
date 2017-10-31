@@ -1,4 +1,3 @@
-using Deprecations: Deprecation
 using Compat
 using CSTParser: FunctionDef, OPERATOR, PUNCTUATION, Curly, BinaryOpCall, BinarySyntaxOpCall, ComparisonOp, DeclarationOp
 

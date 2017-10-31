@@ -6,7 +6,7 @@ using Tokenize: Tokens
 struct OverlayNode{T}
     parent::Union{OverlayNode, Void}
     buffer::String
-    expr::EXPR{T}
+    expr::Union{EXPR{T}, T}
     fullspan::UnitRange{Int}
     span::UnitRange{Int}
 end
