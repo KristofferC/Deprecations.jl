@@ -186,6 +186,7 @@ end
 isexpr(x::EXPR{T}, S) where {T} = T <: S || T == S
 isexpr(x::EXPR{CSTParser.OPERATOR{prec, OP, dot}}, o::Type{CSTParser.OPERATOR}, op) where {prec, OP, dot} = OP == op && dot == false
 isexpr(x::EXPR{CSTParser.KEYWORD{KW}}, k::Type{CSTParser.KEYWORD}, kw) where {KW} = KW == kw
+isexpr(x::EXPR{CSTParser.LITERAL{LIT}}, k::Type{CSTParser.LITERAL}, lit) where {LIT} = LIT == lit
 isexpr(x::EXPR, o, op) = false
 
 isexpr(x::OverlayNode, o, op) = isexpr(x.expr, o, op)

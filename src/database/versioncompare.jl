@@ -51,14 +51,17 @@ begin
         return is_identifier(children(c)[2], name)
     end
 
+    global CHILDREN
     opcode(x::EXPR{CSTParser.OPERATOR{6,op,false}}) where {op} = op
-
+    # opcode(x::CSTParser.OPERATOR) = x.op
+    iscomparison(x::EXPR) = CSTParser.precedence(x) == 6
+    iscomparison(x::OverlayNode) = iscomparison(x.expr)
     match(ObsoleteVersionCheck, CSTParser.If) do x
         dep, expr, resolutions, context = x
         replace_expr = expr
         comparison = children(expr)[2]
         isexpr(comparison, CSTParser.BinaryOpCall) || return
-        isexpr(children(comparison)[2], CSTParser.OPERATOR{6,op,false} where op) || return
+        iscomparison(children(comparison)[2]) || return
         comparison = comparison.expr
         opc = opcode(comparison.args[2])
         haskey(comparisons, opc) || return

@@ -23,7 +23,7 @@ end
 
 CSTParser.declares_function(node::OverlayNode) = CSTParser.declares_function(node.expr)
 function CSTParser.get_id(x::OverlayNode{BinarySyntaxOpCall})
-    if isexpr(children(x)[2], OPERATOR ,Tokens.ISSUBTYPE) || isexpr(children(x)[2], OPERATOR, Tokens.DECLARATION) || isexpr(children(x)[2], EXPR{OPERATOR{WhereOp,Tokens.WHERE,false}})
+    if isexpr(children(x)[2], OPERATOR ,Tokens.ISSUBTYPE) || isexpr(children(x)[2], OPERATOR, Tokens.DECLARATION)
         return CSTParser.get_id(children(x)[1])
     else
         return x

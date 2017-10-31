@@ -38,6 +38,25 @@ let
 end
 
 
+# VERSIONCOMPARE
+let
+    x = CSTParser.parse("VERSION")
+    y = CSTParser.parse("v\"0.2.0\"")
+    @test Deprecations.detect_ver_arguments(x, y) == v"0.2.0"
+
+    x = CSTParser.parse("foo")
+    @test Deprecations.is_identifier(x, "foo") == true
+end
+
+# OLDCOMPAT
+let
+    x = CSTParser.parse("f(x::T) where{T}")
+    @test Deprecations.is_where(x)
+end
+
+# let detect_ver_arguments(
+
+
 # What needs to be changed
 
 # KEYWORDs are no longer parameterized
