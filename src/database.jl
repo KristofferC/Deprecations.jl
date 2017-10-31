@@ -1,8 +1,14 @@
 using Compat
-using CSTParser: FunctionDef, OPERATOR, PUNCTUATION, Curly, BinaryOpCall, BinarySyntaxOpCall, ComparisonOp, DeclarationOp
+using CSTParser: FunctionDef, OPERATOR, PUNCTUATION, Curly, BinaryOpCall, BinarySyntaxOpCall, ComparisonOp, DeclarationOp, MacroCall, MacroName
 
 is_where_expr(::CSTParser.WhereOpCall) = true
 is_where_expr(::Any) = false
+
+function is_macroname(x::OverlayNode{MacroCall}, name)
+    c = children(x)[1]
+    isexpr(c, MacroName) || return false
+    return is_identifier(children(c)[2], name)
+end
 
 # Rewrites related to the new parametric type syntax on 0.6, including
 # rewriting inner constructors

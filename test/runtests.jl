@@ -2,7 +2,7 @@ using Deprecations
 using Deprecations: overlay_parse, apply_formatter, changed_text
 using Base.Test
 using TestSetExtensions
-include("unittests.jl")
+#include("unittests.jl")
 
 @testset ExtendedTestSet "Tests" begin
 @test edit_text("""

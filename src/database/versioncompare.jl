@@ -45,12 +45,7 @@ begin
         x.val == id
     end
     is_identifier(x::OverlayNode, id) = is_identifier(x.expr, id)
-    function is_macroname(x::OverlayNode{MacroCall}, name)
-        c = children(x)[1]
-        isexpr(c, MacroName) || return false
-        return is_identifier(children(c)[2], name)
-    end
-
+    
     global CHILDREN
     #opcode(x::EXPR{CSTParser.OPERATOR{6,op,false}}) where {op} = op
     opcode(x::CSTParser.OPERATOR) = x.kind

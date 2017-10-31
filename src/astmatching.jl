@@ -15,8 +15,11 @@ end
 
 function matches_template(x, y)
     typeof(x) == typeof(y) || return false
-    if typeof(x) == EXPR{CSTParser.IDENTIFIER}
+    if typeof(x) == CSTParser.IDENTIFIER
         return strip(x.val) == strip(y.val)
+    end
+    if typeof(x) == CSTParser.KEYWORD
+        return x.kind == y.kind
     end
     true
 end
@@ -74,6 +77,7 @@ function match_parameters(template, match, result)
         return false
     end
     return true
+    
 end
 
 function leaf_is_template_expr(x)
