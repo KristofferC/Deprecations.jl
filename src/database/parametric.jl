@@ -115,7 +115,7 @@ begin
                 id = Symbol(string(id,"_"))
             end
             id == orig_id && return expr
-            return replace_node(expr, id_expr, ReplacementNode{IDENTIFIER}(String(id), leading_ws(id_expr), trailing_ws(id_expr)))
+            return replace_node(expr, id_expr, ReplacementNode(String(id), leading_ws(id_expr), trailing_ws(id_expr)))
         end
         new_exprs
     end
@@ -147,7 +147,7 @@ begin
                     tparams = new_curlies
                 else
                     new_curlies = deconflict_identifiers(new_curlies, extract_identifiers(tparams))
-                    tparams = [tparams[1]; new_curlies[2:end-1]; ReplacementNode{PUNCTUATION{Tokens.COMMA}}(",",""," "); tparams[2:end]]
+                    tparams = [tparams[1]; new_curlies[2:end-1]; ReplacementNode(",",""," "); tparams[2:end]]
                 end
             end
         end
@@ -160,7 +160,7 @@ begin
         end
         new_tree = ChildReplacementNode(nothing, children(expr)[(isexpr(expr, FunctionDef) ? 3 : 2):end], expr)
         new_where = TriviaReplacementNode(new_tree, ChildReplacementNode(new_tree,
-            [ReplacementNode{OPERATOR{15,Tokens.WHERE,false}}("where"," "," "), tparams...], EXPR{CSTParser.BinarySyntaxOpCall}(EXPR[],"")),
+            [ReplacementNode("where"," "," "), tparams...], EXPR{CSTParser.BinarySyntaxOpCall}(EXPR[],"")),
             "", trailing_ws(call))
         unshift!(children(new_tree), new_where)
         isexpr(expr, FunctionDef) && unshift!(children(new_tree), children(expr)[1])

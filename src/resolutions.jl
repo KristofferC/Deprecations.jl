@@ -46,7 +46,7 @@ function resolve_delete_expr(resolutions, expr, replace_expr)
         repl = ChildReplacementNode(nothing, Any[], expr)
         eif = children(expr)[4]
         @assert isexpr(eif, KEYWORD{Tokens.ELSEIF})
-        push!(repl.children, ReplacementNode{KEYWORD{Tokens.IF}}("if", leading_ws(eif), trailing_ws(eif)))
+        push!(repl.children, ReplacementNode("if", leading_ws(eif), trailing_ws(eif)))
         append!(repl.children, children(expr)[5:end])
         buf = IOBuffer()
         print_replacement(buf, repl, false, true)

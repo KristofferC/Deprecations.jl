@@ -1,9 +1,9 @@
-struct ReplacementNode{T}
+struct ReplacementNode
     text::String
     leading_trivia::String
     trailing_trivia::String
 end
-ReplacementNode(text::String, orig::OverlayNode{T}) where {T} = ReplacementNode{T}(text, leading_ws(orig), trailing_ws(orig))
+ReplacementNode(text::String, orig::OverlayNode{T}) where {T} = ReplacementNode(text, leading_ws(orig), trailing_ws(orig))
 fullspan_text(r::ReplacementNode) = string(r.leading_trivia, r.text, r.trailing_trivia)
 
 struct ChildReplacementNode
