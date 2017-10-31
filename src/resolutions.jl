@@ -30,10 +30,13 @@ function resolve_inline_body(resolutions, expr, replace_expr)
     push!(resolutions, TextReplacement(replace_expr.span, String(take!(buf))))
 end
 
+global GLOB = 0
 function resolve_delete_expr(resolutions, expr, replace_expr)
+
+    global GLOB = children(expr)[4]
     if length(children(expr)) <= 4
         push!(resolutions, TextReplacement(replace_expr.fullspan, except_first_line(trailing_ws(replace_expr))))
-    elseif isexpr(children(expr)[4], KEYWORD{Tokens.ELSE})
+    elseif isexpr(children(expr)[4], KEYWORD, Tokens.ELSE)
         # Inline else body
         indent = sum(charwidth, last_line(trailing_ws(children(expr)[2]))) - line_pos(replace_expr, first(replace_expr.span))
         body = format_addindent_body(children(expr)[5], -indent)
@@ -45,7 +48,7 @@ function resolve_delete_expr(resolutions, expr, replace_expr)
         indent = sum(charwidth, trailing_ws(children(expr)[2]))
         repl = ChildReplacementNode(nothing, Any[], expr)
         eif = children(expr)[4]
-        @assert isexpr(eif, KEYWORD{Tokens.ELSEIF})
+        @assert isexpr(eif, KEYWORD, Tokens.ELSEIF)
         push!(repl.children, ReplacementNode("if", leading_ws(eif), trailing_ws(eif)))
         append!(repl.children, children(expr)[5:end])
         buf = IOBuffer()

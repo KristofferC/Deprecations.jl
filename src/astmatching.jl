@@ -2,14 +2,14 @@ using Tokenize: Tokens
 
 global _EXPR = 0
 function is_template_expr(expr)
-    isa(expr, EXPR{CSTParser.UnarySyntaxOpCall}) || return (false, nothing, false)
+    isexpr(expr, CSTParser.UnarySyntaxOpCall) || return (false, nothing, false)
     global _EXPR = expr
-    if isa(expr.args[2], EXPR{CSTParser.OPERATOR{7, Tokens.DDDOT, false}})
-        isa(expr.args[1], EXPR{CSTParser.UnarySyntaxOpCall}) || return (false, nothing, false)
-        isa(expr.args[1].args[1], EXPR{CSTParser.OPERATOR{9,Tokens.EX_OR,false}}) || return (false, nothing, false)
+    if isexpr(expr.args[2], OPERATOR, Tokens.DDDOT)
+        isexpr(expr.args[1], CSTParser.UnarySyntaxOpCall) || return (false, nothing, false)
+        isexpr(expr.args[1].args[1], OPERATOR, Tokens.EX_OR) || return (false, nothing, false)
         return (true, Symbol(expr.args[1].args[2].val), true)
     end
-    isa(expr.args[1], EXPR{CSTParser.OPERATOR{9,Tokens.EX_OR,false}}) || return (false, nothing, false)
+    isexpr(expr.args[1], OPERATOR, Tokens.EX_OR) || return (false, nothing, false)
     return (true, Symbol(expr.args[2].val), false)
 end
 

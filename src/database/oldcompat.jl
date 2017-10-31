@@ -20,7 +20,7 @@ begin
     function is_where(expr)
         isexpr(expr, CSTParser.BinarySyntaxOpCall) && isexpr(
             children(expr)[2],
-            OPERATOR{15, Tokens.WHERE, false})
+            OPERATOR, Tokens.WHERE)
     end
 
     # Special purpose formatter for `@compat` results

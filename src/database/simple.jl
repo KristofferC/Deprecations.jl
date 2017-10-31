@@ -93,7 +93,7 @@ begin
     function filter_non_where_curly(dep, tree, matches)
         dep.non_where_curly && return true
         isexpr(parent(tree), BinarySyntaxOpCall) || return false
-        isexpr(children(parent(tree))[2], OPERATOR{15,Tokens.WHERE,false}) || return false
+        isexpr(children(parent(tree))[2], OPERATOR, Tokens.WHERE) || return false
         return true
     end
     match(OldStyleConstructor,
@@ -112,7 +112,7 @@ begin
         isexpr(name, Curly) && return false
         p = parent(tree)
         isexpr(p, BinarySyntaxOpCall) || return true
-        isexpr(children(p)[2], OPERATOR{15,Tokens.WHERE,false}) || return true
+        isexpr(children(p)[2], OPERATOR, Tokens.WHERE) || return true
         # Get all the parameter names
         names = extract_identifiers(children(p)[3:end])
         !(Expr(name) in names)

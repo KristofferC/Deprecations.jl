@@ -23,7 +23,7 @@ end
 
 CSTParser.declares_function(node::OverlayNode) = CSTParser.declares_function(node.expr)
 function CSTParser.get_id(x::OverlayNode{BinarySyntaxOpCall})
-    if isexpr(children(x)[2], OPERATOR{ComparisonOp,Tokens.ISSUBTYPE,false}) || isexpr(children(x)[2], OPERATOR{DeclarationOp,Tokens.DECLARATION,false}) || isexpr(children(x)[2], EXPR{OPERATOR{WhereOp,Tokens.WHERE,false}})
+    if isexpr(children(x)[2], OPERATOR ,Tokens.ISSUBTYPE) || isexpr(children(x)[2], OPERATOR, Tokens.DECLARATION) || isexpr(children(x)[2], EXPR{OPERATOR{WhereOp,Tokens.WHERE,false}})
         return CSTParser.get_id(children(x)[1])
     else
         return x
@@ -73,7 +73,7 @@ begin
 
     function is_where_expr(expr)
         isexpr(expr, BinarySyntaxOpCall) || return false
-        isexpr(children(expr)[2], OPERATOR{15, Tokens.WHERE, false}) || return false
+        isexpr(children(expr)[2], OPERATOR, Tokens.WHERE) || return false
         return true
     end
 

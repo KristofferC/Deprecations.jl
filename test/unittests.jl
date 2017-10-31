@@ -9,7 +9,7 @@ import CSTParser: KEYWORD
 expr = CSTParser.parse("if true elseif false end")
 elseif_arg = expr.args[4]
 
-@test Deprecations.isexpr(elseif_arg, KEYWORD{Tokens.ELSEIF})
+@test Deprecations.isexpr(elseif_arg, KEYWORD, Tokens.ELSEIF)
 
 let
     x = CSTParser.parse("foo")

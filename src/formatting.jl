@@ -183,8 +183,13 @@ function format_setindent_body(expr::TriviaReplacementNode, nindent, parent = no
 end
 
 
-isexpr(x::EXPR{T}, S) where {T} = T <: S
-isexpr(x::OverlayNode{T}, S) where {T} = T <: S
+isexpr(x::EXPR{T}, S) where {T} = T <: S || T == S
+isexpr(x::EXPR{CSTParser.OPERATOR{prec, OP, dot}}, o::Type{CSTParser.OPERATOR}, op) where {prec, OP, dot} = OP == op && dot == false
+isexpr(x::EXPR{CSTParser.KEYWORD{KW}}, k::Type{CSTParser.KEYWORD}, kw) where {KW} = KW == kw
+isexpr(x::EXPR, o, op) = false
+
+isexpr(x::OverlayNode, o, op) = isexpr(x.expr, o, op)
+isexpr(x::OverlayNode, S) = isexpr(x.expr, S)
 isexpr(x::ChildReplacementNode, S) = isexpr(x.onode, S)
 isexpr(x::TriviaReplacementNode, S) = isexpr(x.onode, S)
 
