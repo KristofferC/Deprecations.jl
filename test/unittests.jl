@@ -1,15 +1,22 @@
 using Base.Test
 import Deprecations
 import Tokenize.Tokens
-import CSTParser: KEYWORD
+import CSTParser: KEYWORD, OPERATOR, LITERAL
 ##########
 # isexpr #
 ##########
+let
+    expr = CSTParser.parse("if true elseif false end")
+    elseif_arg = expr.args[4]
+    @test Deprecations.isexpr(elseif_arg, KEYWORD, Tokens.ELSEIF)
 
-expr = CSTParser.parse("if true elseif false end")
-elseif_arg = expr.args[4]
+    expr = CSTParser.parse("true")
+    @test Deprecations.isexpr(expr, LITERAL, Tokens.TRUE)
 
-@test Deprecations.isexpr(elseif_arg, KEYWORD, Tokens.ELSEIF)
+    expr = CSTParser.parse("+")
+    @test Deprecations.isexpr(expr, OPERATOR, Tokens.PLUS)
+end
+
 
 let
     x = CSTParser.parse("foo")

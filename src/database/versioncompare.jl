@@ -31,6 +31,7 @@ begin
         VERSION_arg.val == "VERSION" || return nothing
         isa(v_arg, EXPR{CSTParser.x_Str}) || return nothing
         isa(v_arg.args[1], EXPR{CSTParser.IDENTIFIER}) || return nothing
+        # Needs to be fixed.... (can it be something else)
         isa(v_arg.args[2], EXPR{CSTParser.LITERAL{Tokens.STRING}}) || return nothing
         v_arg.args[1].val == "v" || return nothing
         VersionNumber(v_arg.args[2].val)
