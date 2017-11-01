@@ -77,7 +77,6 @@ end
     Aligns new lines to the opening parenthesis of a function call's argument list
 """
 function format_align_arguments(tree)
-    println("DOING TRIVIA!!!!!!")
     leading_trivia = string(prev_node_ws(tree), leading_ws(tree))
     # Find the amount the number characters from the last newline to the start
     # expr's span.
