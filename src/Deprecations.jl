@@ -119,12 +119,15 @@ module Deprecations
         function find_replacements(x, results, context=Context(false, nothing))
             for (i,(dep, (t, r, formatter, filter))) in enumerate(parsed_replacementes)
                 if matches_template2(x, t)
+                    println("HMm")
+                    @show context.in_macrocall
+                    @show applies_in_macrocall(dep, context)
                     println("Running dep $dep, nr $j")
                     println("Entered because $(typeof(x)) != $(typeof(t))")
                     j += 1
                     (!context.in_macrocall || applies_in_macrocall(dep, context)) || continue
                     result = Dict{Any,Any}()
-                    match_parameters(t, x, result)[1]|| continue
+                    @show(match_parameters(t, x, result)[1]) || continue
                     filter(dep, x, result) || continue
                     rtree = reassemble_tree(r, result)
                     buf = IOBuffer()
@@ -135,6 +138,7 @@ module Deprecations
                 end
             end
             for (i,(dep, (k, f))) in enumerate(customs)
+ #               println("Doing a custom for $dep")
                 if isexpr(x, k)
                     f((dep, x, results, context))
                 end

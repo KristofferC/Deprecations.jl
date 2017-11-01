@@ -1,6 +1,7 @@
 begin
     function format_new_call_expr(expr, orig_expr, call, orig_call)
-        lparen_pos = line_pos(orig_call, first(children(orig_call)[2].span))
+        @show orig_call
+        @show lparen_pos = line_pos(orig_call, first(children(orig_call)[2].span))
         # Heuristic: If the arugment indents (more spefically the first indented line), is further
         # left than the original lparen, don't unindent, it's unlikely they were aligned.
         if lparen_pos != 0
@@ -23,10 +24,12 @@ begin
         call_idx = isexpr(expr, FunctionDef) ? 2 : 1
         callorwhere = children(expr)[call_idx]
         call = is_where_expr(callorwhere) ? children(callorwhere)[1] : callorwhere
+        is_where_expr(callorwhere)
         ret_expr = ChildReplacementNode(nothing, collect(children(expr)), expr)
         orig_call = children(children(orig_expr)[2])[call_idx]
         orig_call = is_where_expr(orig_call) ? children(orig_call)[1] : orig_call
         ok, call′ = format_new_call_expr(expr, orig_expr, call, orig_call)
+        ok
         ok || return expr
         if is_where_expr(callorwhere)
             children(ret_expr)[call_idx] = ChildReplacementNode(ret_expr, collect(children(callorwhere)), callorwhere)
@@ -74,6 +77,7 @@ begin
                 return true
             end
         elseif ex.head === :curly
+            println("Here...")
             f = ex.args[1]
             if min_ver < v"0.6.0-dev.2575" && any(i->isa(ex.args[i], Expr) && ex.args[i].head == Symbol("<:"), 2:length(ex.args)) #20414
                 return true
@@ -125,8 +129,11 @@ begin
         length(args) == 1 || return
 
         if !is_at_compat_needed(dep, args[1])
+            println("Remove it...")
             buf = IOBuffer()
             print_replacement(buf, format_result(args[1], expr), false, false)
+            println("SPRINTING")
+            print(sprint(print_replacement, format_result(args[1], expr), false, false))
             push!(resolutions, TextReplacement(expr.span, String(take!(buf))))
         end
     end

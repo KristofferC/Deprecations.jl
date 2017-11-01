@@ -1,8 +1,12 @@
 using Compat
 using CSTParser: FunctionDef, OPERATOR, PUNCTUATION, Curly, BinaryOpCall, BinarySyntaxOpCall, ComparisonOp, DeclarationOp, MacroCall, MacroName
 
-is_where_expr(::CSTParser.WhereOpCall) = true
-is_where_expr(::Any) = false
+
+function is_where_expr(expr)
+    isexpr(expr, BinarySyntaxOpCall) || isexpr(expr, CSTParser.WhereOpCall) || return false
+    isexpr(children(expr)[2], OPERATOR, Tokens.WHERE) || return false
+    return true
+end
 
 function is_macroname(x::OverlayNode{MacroCall}, name)
     c = children(x)[1]
