@@ -36,10 +36,10 @@ end
 matches_template(x::OverlayNode, y::OverlayNode) = matches_template(x.expr, y.expr)
 
 function matches_template2(x, y)
- #   if (typeof(x) == BinarySyntaxOpCall && typeof(y) == CSTParser.WhereOpCall) ||
- #           (typeof(x) == CSTParser.WhereOpCall && typeof(y) == BinarySyntaxOpCall)
- #       return true
- #   end
+    if (typeof(x) == BinarySyntaxOpCall && typeof(y) == CSTParser.WhereOpCall) ||
+            (typeof(x) == CSTParser.WhereOpCall && typeof(y) == BinarySyntaxOpCall)
+        return true
+    end
     if typeof(x) != typeof(y)
         return false
     end

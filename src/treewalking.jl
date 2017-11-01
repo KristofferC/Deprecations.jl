@@ -63,9 +63,9 @@ function function_def_call(expr)
     if isexpr(expr, FunctionDef)
         expr = children(expr)[2]
     else
-        @assert isexpr(expr, BinarySyntaxOpCall) && isexpr(children(expr)[2], CSTParser.OPERATOR, Tokens.EQ)
+        @assert (isexpr(expr, BinarySyntaxOpCall) || isexpr(expr, CSTParser.WhereOpCall)) && isexpr(children(expr)[2], CSTParser.OPERATOR, Tokens.EQ)
     end
-    while isexpr(expr, BinarySyntaxOpCall)
+    while isexpr(expr, BinarySyntaxOpCall) || isexpr(expr, CSTParser.WhereOpCall)
         expr = children(expr)[1]
     end
     return expr

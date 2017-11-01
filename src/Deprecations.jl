@@ -114,17 +114,24 @@ module Deprecations
             haskey(custom_resolutions, typeof(dep)) && append!(customs, collect(Iterators.product((dep,), custom_resolutions[typeof(dep)])))
         end
         parsed_replacementes = map(x->(x[1],(overlay_parse(x[2][1],false),overlay_parse(x[2][2],false),x[2][3:end]...)), replacements)
+        j = 1
         match = overlay_parse(text)
         function find_replacements(x, results, context=Context(false, nothing))
             for (i,(dep, (t, r, formatter, filter))) in enumerate(parsed_replacementes)
-                if typeof(x) == typeof(t) # matches_template2(x, t)
+                if matches_template2(x, t)
+                    println("Running dep $dep, nr $j")
+                    println("Entered because $(typeof(x)) != $(typeof(t))")
+                    j += 1
                     (!context.in_macrocall || applies_in_macrocall(dep, context)) || continue
                     result = Dict{Any,Any}()
-                    match_parameters(t, x, result)[1] || continue
+                    match_parameters(t, x, result)[1]|| continue
+                    filter(dep, x, result) || continue
                     rtree = reassemble_tree(r, result)
                     buf = IOBuffer()
                     print_replacement(buf, formatter(x, rtree, result))
                     push!(results, TextReplacement(x.span, String(take!(buf))))
+                else
+   #                 println("Didn't eneter because $(typeof(x)) != $(typeof(t))")
                 end
             end
             for (i,(dep, (k, f))) in enumerate(customs)
