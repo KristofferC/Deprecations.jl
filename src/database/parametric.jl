@@ -198,4 +198,9 @@ begin
         rewrite_param_syntax(expr, resolutions)
     end
 
+ #   match(OldParametricSyntax, CSTParser.WhereOpCall) do x
+ #       dep, expr, resolutions, context = x
+ #       rewrite_param_syntax(expr, resolutions)
+ #   end
+
 end

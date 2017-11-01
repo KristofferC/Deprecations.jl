@@ -117,15 +117,28 @@ module Deprecations
         match = overlay_parse(text)
         function find_replacements(x, results, context=Context(false, nothing))
             for (i,(dep, (t, r, formatter, filter))) in enumerate(parsed_replacementes)
-                if typeof(x) == typeof(t)
+                if matches_template2(x, t)
+                    #println("Entered because $(typeof(x)) = $(typeof(t))")
                     (!context.in_macrocall || applies_in_macrocall(dep, context)) || continue
                     result = Dict{Any,Any}()
-                    match_parameters(t, x, result)[1] || continue
-                    filter(dep, x, result) || continue
+    #                @show results
+   #                 @show dep
+                    #@show t
+                    #@show x
+                    #@show typeof(parent(x))
+                     (match_parameters(t, x, result)[1]) || continue
+                    #println("Here...")
+                    #@show typeof(x)
+                    #@show typeof(parent(x))
+ #                   @show(filter(dep, x, result)) || continue
+                    #println("Here 2...")
                     rtree = reassemble_tree(r, result)
+                    #println("Reassembled")
                     buf = IOBuffer()
                     print_replacement(buf, formatter(x, rtree, result))
                     push!(results, TextReplacement(x.span, String(take!(buf))))
+                else
+ #                   println("Didn't eneter because $(typeof(x)) != $(typeof(t))")
                 end
             end
             for (i,(dep, (k, f))) in enumerate(customs)

@@ -106,13 +106,18 @@ begin
         dep.inner_constructor && return true
         return get_struct_parent(tree.parent) === nothing
     end
+    global TREE
     function filter_params(dep, tree, matches)
         # Handled by the above
-        name = first(matches[:NAME][2])
-        isexpr(name, Curly) && return false
+        (name) = first(matches[:NAME][2])
+ #       println("ITS A ME")
+ #       @show name
+        (isexpr(name, Curly)) && return false
+ #       println("HEEEEEEEEERE")
         p = parent(tree)
-        isexpr(p, BinarySyntaxOpCall) || return true
-        isexpr(children(p)[2], OPERATOR, Tokens.WHERE) || return true
+        #global TREE = tree
+        ((isexpr(p, BinarySyntaxOpCall)))  #= || isexpr(p, CSTParser.WhereOpCall)) =# || return true
+        (isexpr(children(p)[2], OPERATOR, Tokens.WHERE)) || return true
         # Get all the parameter names
         names = extract_identifiers(children(p)[3:end])
         !(Expr(name) in names)

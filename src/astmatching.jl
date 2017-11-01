@@ -36,6 +36,10 @@ end
 matches_template(x::OverlayNode, y::OverlayNode) = matches_template(x.expr, y.expr)
 
 function matches_template2(x, y)
+ #   if (typeof(x) == BinarySyntaxOpCall && typeof(y) == CSTParser.WhereOpCall) ||
+ #           (typeof(x) == CSTParser.WhereOpCall && typeof(y) == BinarySyntaxOpCall)
+ #       return true
+ #   end
     if typeof(x) != typeof(y)
         return false
     end
@@ -46,7 +50,7 @@ function matches_template2(x, y)
     end
     true
 end
-matches_template2(x::OverlayNode, y::OverlayNode) = matches_template(x.expr, y.expr)
+matches_template2(x::OverlayNode, y::OverlayNode) = matches_template2(x.expr, y.expr)
 
 struct EmptyMatch
     parent
@@ -55,11 +59,10 @@ end
 
 global A, B
 function match_parameters(template, match, result)
-   @show typeof(template), typeof(match)
     if typeof(template.expr) == CSTParser.PUNCTUATION
   #      @show template.expr.kind, match.expr.kind
     end
-    (typeof(template) != typeof(match)) && error("Shouldn't have gotten here")
+    !matches_template2(template, match) && error("Shouldn't have gotten here $template, $match")
     j = 1
     for (i,x) in enumerate(children(template))
         if j > length(children(match)) && i == length(children(template))
@@ -71,11 +74,11 @@ function match_parameters(template, match, result)
         end
         y = children(match)[j]
         ret, sym, slurp = is_template_expr(x)
-        #if typeof(x.expr) == CSTParser.PUNCTUATION
-        #    @show x.expr.kind, y.expr.kind, j
-        #else
-        #    @show typeof(x.expr), typeof(y.expr), j
-        #end
+        if typeof(x.expr) == CSTParser.PUNCTUATION
+            x.expr.kind, y.expr.kind, j
+        else
+            typeof(x.expr), typeof(y.expr), j
+        end
          if !ret && matches_template(x, y)
             ok = match_parameters(x, y, result)
             ok || return ok
@@ -95,9 +98,11 @@ function match_parameters(template, match, result)
                         nextx = children(template)[i + 1]
                         startj = j
                         while j <= length(children(match)) && !matches_template2(nextx, children(match)[j])
+              #              println("Pushing...", typeof(nextx), typeof(children(match)[j]))
                             push!(matched_exprs, children(match)[j])
                             j += 1
                         end
+             #           println("Ending...", typeof(nextx), typeof(children(match)[j]))
                         global A= nextx
                         global B = children(match)[j]
                         result[sym] = (without_trailing_ws, isempty(matched_exprs) ? (EmptyMatch(children(match)[j]),) : matched_exprs)
